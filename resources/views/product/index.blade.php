@@ -1,109 +1,100 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="ml-1 mb-4">
+    <h1 class="fw-bold">Produk</h1>
+</div>
 
-<div class="max-w-screen-md mx-auto flex items-center mt-10">
-    <div class="w-full bg-white rounded-xl px-10 py-8">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
 
-        <h2 class="text-xl font-semibold mb-4">
-            Product Lists
-        </h2>
+    <!-- Category -->
+    <div class="d-flex gap-2">
+        <a href="{{ route('product.index') }}"
+        class="btn-sm btn-success-subtle {{ !$kategori ? 'active' : '' }}">
+        Semua
+        </a>
 
-        {{-- Flash message --}}
-        @if(session()->has('success'))
-            <div class="border border-green-200 bg-green-50 px-4 py-2 rounded mb-5">
-                {{ session('success') }}
-            </div>
-        @endif
+        <a href="{{ route('product.index', ['kategori' => 'Original']) }}"
+        class="btn-sm btn-success-subtle {{ $kategori == 'Original' ? 'active' : '' }}">
+        Original
+        </a>
 
-        {{-- Tombol Add New --}}
-        <div class="flex items-center justify-end mb-5">
-            <a href="{{ route('product.create') }}"
-               class="inline-block text-sm font-semibold text-black bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-600">
-                Add New
-            </a>
-        </div>
+        <a href="{{ route('product.index', ['kategori' => 'BBQ']) }}"
+        class="btn-sm btn-success-subtle {{ $kategori == 'BBQ' ? 'active' : '' }}">
+        BBQ
+        </a>
 
-        {{-- Tabel data --}}
-        <div class="w-full border border-gray-200 rounded-xl overflow-x-auto bg-white">
-            <table class="w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 text-slate-800">
-                    <tr class="divide-x divide-gray-200">
-                        <th class="px-4 py-2 text-left">No</th>
-                        <th class="px-4 py-2 text-left">Nama Produk</th>
-                        <th class="px-4 py-2 text-left">Deskripsi</th>
-                        <th class="px-4 py-2 text-left">Harga</th>
-                        <th class="px-4 py-2 text-left">Stok</th>
-                        <th class="px-4 py-2 text-center">Action</th>
-                    </tr>
-                </thead>
+        <a href="{{ route('product.index', ['kategori' => 'Ayam Panggang']) }}"
+        class="btn-sm btn-success-subtle {{ $kategori == 'Ayam Panggang' ? 'active' : '' }}">
+        Ayam Panggang
+        </a>
 
-                <tbody class="divide-y divide-gray-200 bg-white text-slate-800">
-                    @forelse ($products as $product)
-                        <tr class="divide-x divide-gray-200">
-                            <td class="px-4 py-2">{{ ++$i }}</td>
+        <a href="{{ route('product.index', ['kategori' => 'Pedas']) }}"
+        class="btn-sm btn-success-subtle {{ $kategori == 'Pedas' ? 'active' : '' }}">
+        Pedas
+        </a>
 
-                            {{-- Nama dan deskripsi dari database --}}
-                            <td class="px-4 py-2">{{ $product->Nama_Produk }}</td>
-                            <td class="px-4 py-2">{{ $product->Deskripsi }}</td>
+        <a href="{{ route('product.index', ['kategori' => 'Balado']) }}"
+        class="btn-sm btn-success-subtle {{ $kategori == 'Balado' ? 'active' : '' }}">
+        Balado
+        </a>
+    </div>
 
-                            {{-- Harga dan stok dari database --}}
-                            <td class="px-4 py-2">
-                                Rp {{ number_format($product->Harga, 0, ',', '.') }}
-                            </td>
-                            <td class="px-4 py-2">
-                                {{ $product->Stok }}
-                            </td>
-
-                            <td class="px-4 py-2" style="width:180px;">
-                                <div class="flex items-center justify-center gap-2">
-                            
-                                {{-- SHOW --}}
-                            <form action="{{ route('product.show', $product->ID_Produk) }}" method="GET">
-                                <button type="submit"
-                                    class="bg-red-500 text-black text-sm px-3 py-1 rounded">
-                                    show
-                                </button>
-                            </form>
-
-                            {{-- EDIT --}}
-                            <form action="{{ route('product.edit', $product->ID_Produk) }}" method="GET">
-                                <button type="submit"
-                                    class="bg-red-500 text-black text-sm px-3 py-1 rounded">
-                                    edit
-                                </button>
-                            </form>
-
-
-                                    <form action="{{ route('product.destroy', $product->ID_Produk) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Yakin hapus data ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="bg-red-500 text-black text-sm px-3 py-1 rounded">
-                                            delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-4 py-4 text-center text-slate-500">
-                                Belum ada data product.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div class="mt-5">
-            {!! $products->links() !!}
-        </div>
-
+    <!-- Action -->
+    <div class="d-flex gap-2">
+        <a href="#" class="btn-success d-flex align-items-center p-2 gap-2">
+            <img src="{{ asset('assets\img\icons\material-symbols_save-rounded.svg') }}" alt=""> Simpan Perubahan
+        </a>
+        <a href="{{ route('product.create') }}" class="btn-success d-flex align-items-center p-2 gap-2">
+            <img src="{{ asset('assets\img\icons\mdi_box-plus.svg') }}" alt="">  Tambah Produk
+        </a>
     </div>
 </div>
 
+<!-- Product Card -->
+ <div class="row g-3">
+
+    @foreach($products as $product)
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 p-3 d-flex flex-row align-items-stretch gap-3" style="border-radius: 25px;">
+
+            @php
+                $gambar = $product->gambar;
+                $isFullUrl = $gambar && Str::startsWith($gambar, ['http://','https://']);
+                $src = $gambar
+                    ? ($isFullUrl ? $gambar : asset('storage/'.$gambar))
+                    : 'https://placehold.co/80x80?text=No+Image';
+            @endphp
+            <img src="{{ $src }}" alt="Gambar {{ $product->name }}"
+                    class="rounded"
+                    style="width: 84px; height: 126px; object-fit: cover">
+
+            <div class="d-flex flex-column justify-content-between w-100">
+                <div>
+                    <h6 class="fw-bold">{{ $product->nama_produk }}</h6>
+                    <small>
+                        @php
+                            $berat = $product->deskripsi;
+
+                            if ($berat < 1000) {
+                                echo $berat . ' Gram';
+                            } else {
+                                echo number_format($berat / 1000, 2, ',', '.') . ' KG';
+                            }
+                        @endphp
+                    </small>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <h4 class="fw-bold fs-5">Rp {{ number_format($product->harga, 0, ',', '.') }} </h4>
+                    <a href="{{ route('product.edit', $product->id_produk) }}" class="btn btn-sm btn-dark">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+</div>
 @endsection

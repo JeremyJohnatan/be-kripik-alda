@@ -4,16 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::latest()->paginate(5);
+        $kategori = $request->query('kategori');
 
-        return view('product.index', compact('products'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
+        $products = Product::when($kategori, function ($query) use ($kategori) {
+            return $query->where('item_produk', $kategori);
+        })->get();
+
+        return view('product.index', compact('products', 'kategori'));
     }
+
 
     public function create()
     {
@@ -22,66 +29,128 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'Nama_Produk'  => 'required',
-            'Deskripsi'    => 'required',
-            'Harga'        => 'required|numeric',
-            'Stok'         => 'required|integer',
-            'Item_Produk'  => 'required',
-        ]);
+        DB::beginTransaction();
 
-        Product::create([
-            'Nama_Produk' => $request->Nama_Produk,
-            'Deskripsi'   => $request->Deskripsi,
-            'Harga'       => $request->Harga,
-            'Stok'        => $request->Stok,
-            'Item_Produk' => $request->Item_Produk,
-        ]);
+        try {
+            $validated = $request->validate([
+                'nama_produk'  => 'required|string',
+                'berat'        => 'required|numeric',
+                'harga'        => 'required|numeric',
+                'stok'         => 'required|integer',
+                'kategori'     => 'nullable',
+                'gambar'       => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf'
+            ]);
 
-        return redirect()
-            ->route('product.index')
-            ->with('success', 'Product created successfully.');
+            $storedPath = null;
+            if ($request->hasFile('gambar')) {
+                $file = $request->file('gambar');
+
+                $filename = Str::slug($validated['nama_produk']) . '_' . now()->timestamp;
+                $ext = $file->getClientOriginalExtension();
+
+                $storedPath = $file->storeAs(
+                    "products/gambar_produk",
+                    "{$filename}.{$ext}",
+                    "public"
+                );
+            }
+
+            Product::create([
+                'nama_produk' => $validated['nama_produk'],
+                'deskripsi'   => $validated['berat'],
+                'harga'       => $validated['harga'],
+                'stok'        => $validated['stok'],
+                'item_produk' => $validated['kategori'],
+                'gambar'      => $storedPath,
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('product.index')
+                ->with('success', 'Product created successfully.');
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+            \Log::error('Product error: '.$e->getMessage());
+
+            return redirect()
+                ->route('product.index')
+                ->with('error', 'Gagal membuat produk');
+        }
     }
+
 
     public function show(Product $product)
     {
         return view('product.show', compact('product'));
     }
 
-    public function edit(Product $product)
+    public function edit($id)
     {
+        $product = Product::where('id_produk', $id)->firstOrFail();
         return view('product.edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'Nama_Produk'  => 'required',
-            'Deskripsi'    => 'required',
-            'Harga'        => 'required|numeric',
-            'Stok'         => 'required|integer',
-            'Item_Produk'  => 'required',
-        ]);
 
-        $product->update([
-            'Nama_Produk' => $request->Nama_Produk,
-            'Deskripsi'   => $request->Deskripsi,
-            'Harga'       => $request->Harga,
-            'Stok'        => $request->Stok,
-            'Item_Produk' => $request->Item_Produk,
-        ]);
+        $product = Product::where('id_produk', $id)->firstOrFail();
 
-        return redirect()
-            ->route('product.index')
-            ->with('success', 'Product updated successfully');
-    }
+        DB::beginTransaction();
 
-    public function destroy(Product $product)
-    {
-        $product->delete();
+        try {
+            $validated = $request->validate([
+                'nama_produk'  => 'required|string',
+                'berat'        => 'required|numeric',
+                'harga'        => 'required|numeric',
+                'stok'         => 'required|integer',
+                'kategori'     => 'nullable|string',
+                'gambar'       => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf'
+            ]);
 
-        return redirect()
-            ->route('product.index')
-            ->with('success', 'Product deleted successfully');
+            if ($request->hasFile('gambar')) {
+
+                if (!empty($product->gambar) && Storage::disk('public')->exists($product->gambar)) {
+                    Storage::disk('public')->delete($product->gambar);
+                }
+
+                $file = $request->file('gambar');
+                $filename = Str::slug($validated['nama_produk']) . '_' . now()->timestamp;
+                $ext = $file->getClientOriginalExtension();
+
+                $storedPath = $file->storeAs(
+                    "products/gambar_produk",
+                    "{$filename}.{$ext}",
+                    "public"
+                );
+
+                $product->gambar = $storedPath;
+            }
+
+            $product->nama_produk = $validated['nama_produk'];
+            $product->deskripsi   = $validated['berat'];
+            $product->harga       = $validated['harga'];
+            $product->stok        = $validated['stok'];
+            $product->item_produk = $validated['kategori'];
+
+            $product->save();
+
+            DB::commit();
+
+            return redirect()
+                ->route('product.index')
+                ->with('success', 'Produk berhasil diupdate.');
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+            \Log::error('Product error: '.$e->getMessage());
+
+            return redirect()
+                ->route('product.index')
+                ->with('error', 'Gagal mengupdate produk');
+        }
     }
 }

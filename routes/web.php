@@ -3,29 +3,25 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\KeranjangController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PesananController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-// Dashboard (hanya untuk user login)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// Profile routes (auth wajib)
-Route::middleware('auth')->group(function () {
+    Route::resource('product', ProductController::class)->names('product');
+
+    Route::resource('pesanan', PesananController::class)->names('pesanan');
+    Route::get('/pesanan/cetak/pdf', [PesananController::class, 'cetakPdf'])->name('pesanan.cetak.pdf');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // CRUD Product (auth wajib)
-    Route::resource('product', ProductController::class);
 });
 
-Route::resource('transaksi', TransaksiController::class);
-
-
-Route::resource('keranjang', KeranjangController::class);
 require __DIR__.'/auth.php';

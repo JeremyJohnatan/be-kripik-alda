@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('_keranjang', function (Blueprint $table) {
-            $table->id('ID_Keranjang');  
-            $table->unsignedBigInteger('ID_User');  
-            $table->unsignedBigInteger('ID_Produk'); 
-            $table->integer('Jumlah');
+        Schema::create('keranjang', function (Blueprint $table) {
+            $table->id('id_keranjang');
+            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_produk');
+            $table->integer('jumlah');
             $table->timestamps();
-            $table->foreign('ID_User')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('ID_Produk')->references('ID_Produk')->on('product')->onDelete('cascade');
+            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('id_produk')->references('id_produk')->on('product')->onDelete('cascade');
         });
     }
     public function down(): void
     {
-        Schema::dropIfExists('_keranjang');
+        Schema::dropIfExists('keranjang');
     }
 };

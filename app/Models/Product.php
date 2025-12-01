@@ -4,32 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
     use HasFactory;
 
-    // Nama tabel tepat seperti di database
     protected $table = 'product';
-
-    // Primary key
-    protected $primaryKey = 'ID_Produk';
-
-    // Primary key auto increment
+    protected $primaryKey = 'id_produk';
     public $incrementing = true;
-
-    // Primary key tipe integer
     protected $keyType = 'int';
 
-    // Karena tabel punya created_at dan updated_at
-    public $timestamps = true;
-
-    // Mass assignment fields
     protected $fillable = [
-        'Nama_Produk',
-        'Deskripsi',
-        'Harga',
-        'Stok',
-        'Item_Produk',
+        'nama_produk',
+        'deskripsi',
+        'harga',
+        'stok',
+        'item_produk',
+        'gambar'
     ];
+
+    public function detail(): HasMany
+    {
+        return $this->hasMany(DetailTransaksi::class, 'id_produk', 'id_produk');
+    }
 }

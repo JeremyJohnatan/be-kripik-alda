@@ -6,19 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    
+
     public function up(): void
     {
         Schema::create('log_ai', function (Blueprint $table) {
-            $table->id('ID_Log');  
-            $table->unsignedBigInteger('ID_User');  
-            $table->dateTime('Tanggal_Proses');
-            $table->string('Type_Proses');
-            $table->text('Hasil_Proses');
-            $table->text('Data_Input');
+            $table->id('id_log');
+            $table->unsignedBigInteger('id_user');
+            $table->dateTime('tanggal_proses');
+            $table->string('type_proses');
+            $table->text('hasil_proses');
+            $table->text('data_input');
             $table->timestamps();
 
-            $table->foreign('ID_User')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
