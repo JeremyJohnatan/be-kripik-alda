@@ -22,9 +22,8 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label for="berat" class="form-label fw-semibold">Berat (gram/kg)</label>
-                    <input type="number" class="form-control rounded-3" id="berat" name="berat" required>
-
+                    <label for="berat" class="form-label fw-semibold">Berat (gram)</label>
+                    <input type="number" class="form-control rounded-3" id="berat" name="berat" placeholder="Contoh: 1000" required>
                 </div>
 
                 <div class="col-md-6">

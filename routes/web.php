@@ -14,7 +14,9 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::delete('/product/mass-delete', [ProductController::class, 'massDelete'])->name('product.massDelete');
     Route::resource('product', ProductController::class)->names('product');
+
 
     Route::resource('pesanan', PesananController::class)->names('pesanan');
     Route::get('/pesanan/cetak/pdf', [PesananController::class, 'cetakPdf'])->name('pesanan.cetak.pdf');

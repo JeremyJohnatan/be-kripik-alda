@@ -24,9 +24,9 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label for="berat" class="form-label fw-semibold">Berat (gram/kg)</label>
+                    <label for="berat" class="form-label fw-semibold">Berat (gram)</label>
                     <input type="number" class="form-control rounded-3" id="berat" name="berat"
-                    value="{{ old('berat', $product->deskripsi ?? '') }}" required>
+                    value="{{ old('berat', $product->deskripsi ?? '') }}" placeholder="Contoh: 1000" required>
                 </div>
 
                 <div class="col-md-6">

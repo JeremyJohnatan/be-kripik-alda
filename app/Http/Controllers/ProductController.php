@@ -81,12 +81,6 @@ class ProductController extends Controller
         }
     }
 
-
-    public function show(Product $product)
-    {
-        return view('product.show', compact('product'));
-    }
-
     public function edit($id)
     {
         $product = Product::where('id_produk', $id)->firstOrFail();
@@ -152,5 +146,18 @@ class ProductController extends Controller
                 ->route('product.index')
                 ->with('error', 'Gagal mengupdate produk');
         }
+    }
+
+    public function massDelete(Request $request)
+    {
+        $ids = $request->ids;
+
+        if (!$ids || count($ids) === 0) {
+            return redirect()->back()->with('error', 'Tidak ada produk yang dipilih untuk dihapus.');
+        }
+
+        Product::whereIn('id_produk', $ids)->delete();
+
+        return redirect()->back()->with('success', 'Produk yang dipilih berhasil dihapus!');
     }
 }
