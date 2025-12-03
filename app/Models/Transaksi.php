@@ -17,10 +17,15 @@ class Transaksi extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'id_user', 'tanggal', 'status_pembayaran',
+        'id_user',
+        'tanggal',
+        'alamat',
+        'status_pembayaran',
+        'status_pengiriman',
+        'total',
+        'note'
     ];
 
-    // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class, 'id');

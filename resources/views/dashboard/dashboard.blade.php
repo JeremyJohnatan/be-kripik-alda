@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
 @section('content')
 <div class="ml-1 mb-4">
     <h1 class="fw-bold">Rincian Penjualan</h1>
@@ -29,20 +32,47 @@
         Tahunan
         </a>
 
-        <a href="{{ route('dashboard', ['filter' => 'Pedas']) }}"
-        class="btn-sm btn-success-subtle {{ $filter == 'Pedas' ? 'active' : '' }}">
-        Pedas
-        </a>
+        <form id="rangeForm" action="{{ route('dashboard') }}" method="GET" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="filter" value="Range">
+
+            <input
+                type="text"
+                id="dateRange"
+                name="range"
+                class="form-control form-control-sm"
+                placeholder="Pilih Rentang Tanggal"
+                value="{{ request('range') }}"
+                style="min-width: 240px;"
+            >
+        </form>
     </div>
 
     <!-- Action -->
     <div class="d-flex align-self-end gap-2">
-        <a href="{{ route('product.create') }}" class="btn-success d-flex align-items-center p-2 gap-2">
+        <a href="{{ route('dashboard.cetak.pdf') }}" class="btn-success d-flex align-items-center p-2 gap-2">
             Cetak Laporan
         </a>
-        <a href="{{ route('product.create') }}" class="btn-success d-flex align-items-center p-2 gap-2">
-            Lihat Perkembangan Penjualan
+
+        <a href="#"
+        id="geminiBtn"
+        class="btn-success d-flex align-items-center p-2 gap-2">
+        Lihat Perkembangan Penjualan
         </a>
+
+        <!-- Modal untuk menampilkan hasil AI -->
+        <div class="modal fade" id="geminiModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content p-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">Insight Penjualan dari Gemini AI</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="geminiContent">Memuat insight...</div>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -51,7 +81,7 @@
         <div class="card shadow-sm p-3 d-flex align-items-center gap-3" style="border-radius: 25px;">
             <h5>Produk Yang Terjual</h5>
             <div class="d-flex flex-column align-items-center">
-                <h2 style="color: var(--tg-body-font-color);" class="fw-bold">{{ $product_sold }}</h2>
+                <h2 style="color: var(--tg-body-font-color);" class="fw-bold">{{ $product_sold ?? 0 }}</h2>
                 <label for="">Produk</label>
             </div>
         </div>
@@ -61,8 +91,8 @@
         <div class="card shadow-sm  p-3 d-flex align-items-center gap-3" style="border-radius: 25px;">
             <h5>Produk Terlaris</h5>
             <div class="d-flex flex-column">
-                <h2 style="color: var(--tg-body-font-color);" class="align-self-center fw-bold">{{ $product_fav->total_jumlah }}</h2>
-                <label for="">{{ $product_fav->product->nama_produk}}</label>
+                <h2 style="color: var(--tg-body-font-color);" class="align-self-center fw-bold">{{ $product_fav->total_jumlah ?? 0 }}</h2>
+                <label for="">{{ $product_fav->product->nama_produk ?? '-'}}</label>
             </div>
         </div>
     </div>
@@ -71,8 +101,8 @@
         <div class="card shadow-sm  p-3 d-flex align-items-center gap-3" style="border-radius: 25px;">
             <h5>Produk Kurang Laku</h5>
             <div class="d-flex flex-column">
-                <h2 style="color: var(--tg-body-font-color);" class="align-self-center fw-bold">{{ $product_least->total_jumlah }}</h2>
-                <label for="">{{ $product_least->product->nama_produk }}</label>
+                <h2 style="color: var(--tg-body-font-color);" class="align-self-center fw-bold">{{ $product_least->total_jumlah ?? 0 }}</h2>
+                <label for="">{{ $product_least->product->nama_produk ?? '-' }}</label>
             </div>
         </div>
     </div>
@@ -87,10 +117,10 @@
     </div>
 </div>
 
-<div class="row px-2 my-4">
+<div class="row px-2 mb-4 ">
 
     <!-- Donut Chart -->
-    <div class="col-lg-4 px-1">
+    <div class="col-lg-4 ps-1">
         <div class="card shadow-sm p-3 d-flex gap-3" style="border-radius: 25px;">
             <h5>Produk Terlaris</h5>
             <canvas id="donutChart"></canvas>
@@ -119,6 +149,7 @@
                     <th class="fw-semibold py-3 text-center">Alamat</th>
                     <th class="fw-semibold py-3 text-center">Status Pembayaran</th>
                     <th class="fw-semibold py-3 text-center">Status Pengiriman</th>
+                    <th class="fw-semibold py-3 text-end">Total</th>
                 </tr>
             </thead>
 
@@ -126,9 +157,10 @@
                 @foreach($transaksi as $t)
                 <tr>
                     <td class="fw-semibold py-3 text-start">{{ $t->tanggal }}</td>
-                    <td class="fw-semibold py-3 text-center">Alamat</td>
+                    <td class="fw-semibold py-3 text-start">{{ $t->alamat}}</td>
                     <td class="fw-semibold py-3 text-center">{{ $t->status_pembayaran }}</td>
-                    <td class="fw-semibold py-3 text-center">Status Pengiriman</td>
+                    <td class="fw-semibold py-3 text-center">{{ $t->status_pengiriman }}</td>
+                    <td class="fw-semibold py-3 text-end">Rp {{ number_format($t->total, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -139,6 +171,56 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+   document.getElementById("geminiBtn").addEventListener("click", function () {
+    let url = "{{ route('get.insight') }}?data=" + encodeURIComponent(JSON.stringify(@json($aiData)));
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            let raw = data.candidates[0].content.parts[0].text;
+
+            let formatted = raw
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")       // **bold**
+                .replace(/(### )(.+)/g, "<h4>$2</h4>")                  // ### heading
+                .replace(/(## )(.+)/g, "<h3>$2</h3>")                  // ## heading
+                .replace(/(# )(.+)/g, "<h2>$2</h2>")                   // # heading
+                .replace(/\n[-•]\s*(.+)/g, "<li>$1</li>")              // bullet list
+                .replace(/\n\n/g, "</p><p>")                           // paragraph
+                .replace(/\n/g, "<br>");                               // line break fallback
+
+            formatted = formatted.replace(/(<li>[\s\S]*?<\/li>)/g, "<ul>$1</ul>");
+
+            document.getElementById("geminiContent").innerHTML = `
+                <div class="gemini-box">
+                    <p>${formatted}</p>
+                </div>
+            `;
+
+            new bootstrap.Modal(document.getElementById("geminiModal")).show();
+        })
+        .catch(err => {
+            document.getElementById("geminiContent").innerHTML = "<p>Error memuat insight.</p>";
+        });
+    });
+</script>
+
+<script>
+    flatpickr("#dateRange", {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        locale: {
+            rangeSeparator: " - "
+        },
+        onClose: function(selectedDates, dateStr) {
+            if (selectedDates.length === 2) {
+                document.getElementById('rangeForm').submit();
+            }
+        }
+    });
+</script>
 
 <script>
     // chart produk terlaris
@@ -178,20 +260,11 @@
 
     new Chart(donut, configDonut);
 
-    // chart pertumbuhan bisnis
+    /// chart pertumbuhan bisnis
     const bar = document.getElementById('barChart');
 
-    let barLabels = @json($bar->pluck('tanggal'));
+    let barLabels = @json($bar->pluck('period'));
     const barValues = @json($bar->pluck('total_jumlah'));
-
-    barLabels = barLabels.map(t => {
-        const d = new Date(t);
-        return d.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
-    });
 
     const barData = {
         labels: barLabels,
@@ -216,6 +289,5 @@
     };
 
     new Chart(bar, barConfig);
-
 </script>
 @endpush

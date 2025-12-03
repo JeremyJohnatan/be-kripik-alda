@@ -5,7 +5,7 @@
     <h1 class="fw-bold">Pesanan</h1>
 </div>
 
-<div class="d-flex h-100 flex-wrap card shadow-sm px-4" style="border-radius: 35px;">
+<div class="d-flex flex-wrap card shadow-sm px-4" style="border-radius: 35px;">
     <div class="m-0 ms-2 me-4">
         <div class="d-flex justify-content-end">
         <a href="{{ route('pesanan.cetak.pdf') }}" class="btn-success d-flex align-items-center p-2 gap-2">
@@ -21,22 +21,24 @@
         <table class="table mb-4">
             <thead class="border-top border-bottom border-dark">
                 <tr>
-                    <th class="fw-semibold py-3 text-start">Tanggal Pesanan</th>
-                    <th class="fw-semibold py-3 text-center">Alamat</th>
-                    <th class="fw-semibold py-3 text-center">Status Pembayaran</th>
-                    <th class="fw-semibold py-3 text-center">Status Pengiriman</th>
-                    <th class="fw-semibold py-3 text-end">Detail Pesanan</th>
+                    <th class="fw-semibold py-1 text-start">Tanggal Pesanan</th>
+                    <th class="fw-semibold py-1 text-center">Alamat</th>
+                    <th class="fw-semibold py-1 text-center">Pembayaran</th>
+                    <th class="fw-semibold py-1 text-center">Pengiriman</th>
+                    <th class="fw-semibold py-1 text-center">Total</th>
+                    <th class="fw-semibold py-1 text-end">Detail</th>
                 </tr>
             </thead>
 
             <tbody>
                 @foreach($transaksi as $t)
                 <tr>
-                    <td class="fw-semibold py-3 text-start">{{ $t->tanggal }}</td>
-                    <td class="fw-semibold py-3 text-center">Alamat</td>
-                    <td class="fw-semibold py-3 text-center">{{ $t->status_pembayaran }}</td>
-                    <td class="fw-semibold py-3 text-center">Status Pengiriman</td>
-                    <td class="fw-semibold py-3 text-end">
+                    <td class="fw-semibold py-1 text-start">{{ $t->tanggal }}</td>
+                    <td class="fw-semibold py-1 text-center">{{ $t->alamat }}</td>
+                    <td class="fw-semibold py-1 text-center">{{ $t->status_pembayaran }}</td>
+                    <td class="fw-semibold py-1 text-center">{{ $t->status_pengiriman}}</td>
+                    <td class="fw-semibold py-1 text-center">Rp {{ number_format($t->total, 0, ',', '.') }}</td>
+                    <td class="fw-semibold py-1 text-end">
                         <a href="#" class="btn-success-subtle"
                         data-bs-toggle="modal"
                         data-bs-target="#detailModal-{{ $t->id_transaksi }}">
@@ -61,24 +63,31 @@
 
                     <div class="modal-body">
                         <p><strong>Tanggal:</strong> {{ $t->tanggal }}</p>
+                        <p><strong>Alamat:</strong> {{ $t->alamat }}</p>
                         <p><strong>Status Pembayaran:</strong> {{ $t->status_pembayaran }}</p>
 
                         <table class="table table-bordered mt-3">
                             <thead>
                                 <tr>
                                     <th>Nama Produk</th>
+                                    <th>Harga</th>
                                     <th class="text-center">Jumlah</th>
+                                    <th class="text-center">SubTotal</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($t->detail as $d)
                                 <tr>
                                     <td>{{ $d->product->nama_produk }}</td>
+                                    <td>Rp {{ number_format($d->product->harga, 0, ',', '.') }}</td>
                                     <td class="text-center">{{ $d->total_jumlah }}</td>
+                                    <td class="text-center">Rp {{ number_format($d->subtotal, 0, ',', '.') }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
+                        <p class="d-flex justify-content-end gap-2"><strong>Total: </strong> Rp {{ number_format($t->total, 0, ',', '.') }}</p>
+                        <p><strong>Catatan:</strong> {{ $t->note ?? 'Tidak Ada Catatan' }}</p>
                     </div>
 
                     <div class="modal-footer border-0">

@@ -172,11 +172,14 @@ label {
 small {
 	color: var(--tg-dark);
 	cursor: pointer;
-	font-size: 10px;
+	font-size: 12px;
 	font-weight: 600;
 }
 span {
-    font-size: 16px;
+    color: var(--tg-dark);
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 600;
 }
 input {
     background-color: #FBFEFC;
@@ -425,7 +428,8 @@ input {
 .sidebar {
     width: 14rem;
     background-color: #133223;
-    min-height: 1000vh;
+    height: auto;
+    min-height: 1020px;
 }
 
 .sidebar a {
@@ -446,6 +450,7 @@ input {
         transform: translateX(-100%);
         transition: 0.3s ease;
         z-index: 1050;
+        min-height: 1348px;
     }
     .sidebar.show {
         transform: translateX(0);
@@ -466,7 +471,6 @@ input {
     flex: 1;
     padding: 1.5rem;
     padding-top: 3rem;
-    min-height: 100vh;
 }
 
 .table {
@@ -474,6 +478,21 @@ input {
 }
 th {
     font-size: 24px;
+}
+.search {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--tg-secondary-color);
+    background: #ffffff;
+    font-size: 14px;
+    transition: 0.2s ease;
+    width: 220px;
+}
+
+.search:focus {
+    outline: none;
+    border-color: var(--tg-body-font-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 /* Preloader */
 #preloader {

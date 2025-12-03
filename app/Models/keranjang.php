@@ -10,26 +10,24 @@ class Keranjang extends Model
     use HasFactory;
 
     protected $table = 'keranjang';
-    protected $primaryKey = 'ID_Keranjang';
+    protected $primaryKey = 'id_keranjang';
 
-    public $incrementing = true;      // WAJIB diubah
-    protected $keyType = 'int';       // WAJIB diubah
+    public $incrementing = true;
+    protected $keyType = 'int';
 
     protected $fillable = [
-        'ID_User',
-        'ID_Produk',
-        'Jumlah',
+        'id_user',
+        'id_produk',
+        'jumlah',
     ];
 
-    // Relasi ke User
     public function user()
     {
-        return $this->belongsTo(User::class, 'ID_User');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
-    // Relasi ke Produk
     public function produk()
     {
-        return $this->belongsTo(Product::class, 'ID_Produk');
+        return $this->belongsTo(Product::class, 'id_produk');
     }
 }

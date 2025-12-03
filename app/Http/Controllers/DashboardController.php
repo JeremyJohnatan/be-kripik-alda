@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
 use App\Models\Transaksi;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,29 +14,32 @@ class DashboardController extends Controller
     {
         $filter = $request->query('filter');
 
-        $query = DetailTransaksi::query()->with('product', 'transaksi');
+        $query = DetailTransaksi::query()
+            ->with('product', 'transaksi')
+            ->join('transaksi', 'transaksi.id_transaksi', '=', 'detail_transaksi.id_transaksi')
+            ->select('detail_transaksi.*');
 
-        $query = $this->applyFilter($query, $filter);
+        $query = $this->applyFilter($query, $filter, $request);
 
         $product_sold = $query->sum('jumlah');
 
         $product_fav = (clone $query)
             ->select('id_produk', DB::raw('SUM(jumlah) as total_jumlah'))
             ->groupBy('id_produk')
-            ->orderByDesc('total_jumlah')
             ->with('product')
+            ->orderByDesc('total_jumlah')
             ->first();
 
         $product_least = (clone $query)
             ->select('id_produk', DB::raw('SUM(jumlah) as total_jumlah'))
             ->groupBy('id_produk')
-            ->orderBy('total_jumlah', 'ASC')
             ->with('product')
+            ->orderBy('total_jumlah', 'ASC')
             ->first();
 
         $revenue = $query->sum('subtotal');
 
-        // Donut chart data
+        // Donut Chart
         $donut = (clone $query)
             ->select('id_produk', DB::raw('SUM(jumlah) as total_jumlah'))
             ->groupBy('id_produk')
@@ -43,15 +47,23 @@ class DashboardController extends Controller
             ->orderByDesc('total_jumlah')
             ->get();
 
-        // Bar chart
+        // Bar Chart
+        $groupFormat = match ($filter) {
+            'Harian'   => '%Y-%m-%d',
+            'Mingguan' => '%x-%v',
+            'Bulanan'  => '%Y-%m',
+            'Tahunan'  => '%Y',
+            'Range'    => '%Y-%m-%d',
+            default    => '%Y-%m-%d'
+        };
+
         $bar = (clone $query)
-            ->join('transaksi', 'transaksi.id_transaksi', '=', 'detail_transaksi.id_transaksi')
             ->select(
-                'transaksi.tanggal',
+                DB::raw("DATE_FORMAT(transaksi.tanggal, '$groupFormat') as period"),
                 DB::raw('SUM(detail_transaksi.jumlah) as total_jumlah')
             )
-            ->groupBy('transaksi.tanggal')
-            ->orderBy('transaksi.tanggal')
+            ->groupBy('period')
+            ->orderBy('period')
             ->get();
 
         $transaksi = Transaksi::with([
@@ -65,7 +77,33 @@ class DashboardController extends Controller
             'detail.product'
         ])->get();
 
-        return view('dashboard', compact(
+        $aiData = [
+            'filter'        => $filter,
+            'product_sold'  => $product_sold,
+            'revenue'       => $revenue,
+            'favorite_product' => $product_fav ? [
+                'nama' => $product_fav->product->nama_produk ?? 'Unknown',
+                'jumlah' => $product_fav->total_jumlah
+            ] : null,
+            'least_product' => $product_least ? [
+                'nama' => $product_least->product->nama_produk ?? 'Unknown',
+                'jumlah' => $product_least->total_jumlah
+            ] : null,
+            'donut' => $donut->map(function ($item) {
+                return [
+                    'product' => $item->product->nama_produk ?? 'Unknown',
+                    'jumlah'  => $item->total_jumlah
+                ];
+            }),
+            'bar' => $bar->map(function ($item) {
+                return [
+                    'period' => $item->period,
+                    'jumlah' => $item->total_jumlah
+                ];
+            }),
+        ];
+
+        return view('dashboard.dashboard', compact(
             'filter',
             'product_sold',
             'product_fav',
@@ -73,42 +111,131 @@ class DashboardController extends Controller
             'revenue',
             'donut',
             'bar',
-            'transaksi'
+            'transaksi',
+            'aiData'
         ));
     }
 
-    private function applyFilter($query, $filter)
+    private function applyFilter($query, $filter, $request)
     {
-        if (!$filter) return $query;
+        if ($filter === 'Range') {
 
-        switch ($filter) {
-            case 'Harian':
-                $query->whereDate('detail_transaksi.created_at', today());
-                break;
+            $range = $request->query('range');
 
-            case 'Mingguan':
-                $query->whereBetween('detail_transaksi.created_at', [
-                    now()->startOfWeek(),
-                    now()->endOfWeek()
-                ]);
-                break;
-
-            case 'Bulanan':
-                $query->whereMonth('detail_transaksi.created_at', now()->month)
-                    ->whereYear('detail_transaksi.created_at', now()->year);
-                break;
-
-            case 'Tahunan':
-                $query->whereYear('detail_transaksi.created_at', now()->year);
-                break;
-
-            case 'Pedas':
-                $query->whereHas('product', function ($q) {
-                    $q->where('rasa', 'Pedas');
-                });
-                break;
+            if ($range) {
+                [$start, $end] = explode(' - ', $range);
+                $query->whereBetween('transaksi.tanggal', [$start, $end]);
+            }
         }
 
         return $query;
     }
+
+    public function cetakPdf(Request $request)
+    {
+        $filter = $request->query('filter');
+
+        $query = DetailTransaksi::query()
+            ->with('product', 'transaksi')
+            ->join('transaksi', 'transaksi.id_transaksi', '=', 'detail_transaksi.id_transaksi')
+            ->select('detail_transaksi.*');
+
+        $query = $this->applyFilter($query, $filter, $request);
+
+        $product_sold = $query->sum('jumlah');
+
+        $product_fav = (clone $query)
+            ->select('id_produk', DB::raw('SUM(jumlah) as total_jumlah'))
+            ->groupBy('id_produk')
+            ->with('product')
+            ->orderByDesc('total_jumlah')
+            ->first();
+
+        $product_least = (clone $query)
+            ->select('id_produk', DB::raw('SUM(jumlah) as total_jumlah'))
+            ->groupBy('id_produk')
+            ->with('product')
+            ->orderBy('total_jumlah', 'ASC')
+            ->first();
+
+        $revenue = $query->sum('subtotal');
+
+        // Donut Chart
+        $donut = (clone $query)
+            ->select('id_produk', DB::raw('SUM(jumlah) as total_jumlah'))
+            ->groupBy('id_produk')
+            ->with('product')
+            ->orderByDesc('total_jumlah')
+            ->get();
+
+        // Bar Chart
+        $groupFormat = match ($filter) {
+            'Harian'   => '%Y-%m-%d',
+            'Mingguan' => '%x-%v',
+            'Bulanan'  => '%Y-%m',
+            'Tahunan'  => '%Y',
+            'Range'    => '%Y-%m-%d',
+            default    => '%Y-%m-%d'
+        };
+
+        $bar = (clone $query)
+            ->select(
+                DB::raw("DATE_FORMAT(transaksi.tanggal, '$groupFormat') as period"),
+                DB::raw('SUM(detail_transaksi.jumlah) as total_jumlah')
+            )
+            ->groupBy('period')
+            ->orderBy('period')
+            ->get();
+
+        $transaksi = Transaksi::with([
+            'detail' => function ($q) {
+                $q->select(
+                    'id_transaksi',
+                    'id_produk',
+                    DB::raw('SUM(jumlah) as total_jumlah')
+                )->groupBy('id_transaksi', 'id_produk');
+            },
+            'detail.product'
+        ])->get();
+
+        $aiData = [
+            'filter'        => $filter,
+            'product_sold'  => $product_sold,
+            'revenue'       => $revenue,
+            'favorite_product' => $product_fav ? [
+                'nama' => $product_fav->product->nama_produk ?? 'Unknown',
+                'jumlah' => $product_fav->total_jumlah
+            ] : null,
+            'least_product' => $product_least ? [
+                'nama' => $product_least->product->nama_produk ?? 'Unknown',
+                'jumlah' => $product_least->total_jumlah
+            ] : null,
+            'donut' => $donut->map(function ($item) {
+                return [
+                    'product' => $item->product->nama_produk ?? 'Unknown',
+                    'jumlah'  => $item->total_jumlah
+                ];
+            }),
+            'bar' => $bar->map(function ($item) {
+                return [
+                    'period' => $item->period,
+                    'jumlah' => $item->total_jumlah
+                ];
+            }),
+        ];
+
+        $pdf = Pdf::loadView('dashboard.cetak-pdf', compact(
+            'filter',
+            'product_sold',
+            'product_fav',
+            'product_least',
+            'revenue',
+            'donut',
+            'bar',
+            'transaksi',
+            'aiData'
+        ));
+        return $pdf->download('Laporan_Penjualan.pdf');
+    }
+
 }

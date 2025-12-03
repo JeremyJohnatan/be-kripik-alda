@@ -19,7 +19,7 @@ class DetailTransaksi extends Model
         'id_transaksi',
         'id_produk',
         'jumlah',
-        'sub_total'
+        'subtotal'
     ];
 
     public function transaksi(): BelongsTo

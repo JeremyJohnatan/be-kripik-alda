@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id('id_transaksi');
             $table->unsignedBigInteger('id_user');
             $table->dateTime('tanggal');
+            $table->string('alamat');
             $table->string('status_pembayaran');
+            $table->string('status_pengiriman');
+            $table->decimal('total', 10, 2);
+            $table->text('note')->nullable();
             $table->timestamps();
             $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
         });

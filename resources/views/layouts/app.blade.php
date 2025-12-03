@@ -35,7 +35,7 @@
 @include('partials.scrolltop')
 
 
-<div class="layout d-flex">
+<div class="d-flex">
     @include('partials.sidebar')
 
     <main class="main-area">

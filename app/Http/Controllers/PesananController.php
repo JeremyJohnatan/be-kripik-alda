@@ -17,7 +17,8 @@ class PesananController extends Controller
                     $q->select(
                         'id_transaksi',
                         'id_produk',
-                        DB::raw('SUM(jumlah) as total_jumlah')
+                        DB::raw('SUM(jumlah) as total_jumlah'),
+                        DB::raw('SUM(subtotal) as subtotal')
                     )
                     ->groupBy('id_transaksi', 'id_produk');
                 },
@@ -34,7 +35,8 @@ class PesananController extends Controller
                 $q->select(
                     'id_transaksi',
                     'id_produk',
-                    DB::raw('SUM(jumlah) as total_jumlah')
+                    DB::raw('SUM(jumlah) as total_jumlah'),
+                    DB::raw('SUM(subtotal) as subtotal')
                 )->groupBy('id_transaksi', 'id_produk');
             },
             'detail.product'
