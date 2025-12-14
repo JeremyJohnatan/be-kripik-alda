@@ -6,7 +6,7 @@
     <div class="col-lg-7">
 
         <!-- Header -->
-        <form method="GET" action="{{ route('keranjang.index') }}">
+        <form method="GET" action="{{ route('keranjang') }}">
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 me-2">
                 <h2 class="fw-bolder">Halo, {{ $user->name }}</h2>
 
@@ -26,32 +26,32 @@
 
          <!-- Category -->
          <div class="d-flex gap-2 mb-4 align-items-center">
-            <a href="{{ route('keranjang.index') }}"
+            <a href="{{ route('keranjang') }}"
             class="btn-sm btn-success-subtle {{ !$kategori ? 'active' : '' }}">
             Semua
             </a>
 
-            <a href="{{ route('keranjang.index', ['kategori' => 'Original']) }}"
+            <a href="{{ route('keranjang', ['kategori' => 'Original']) }}"
             class="btn-sm btn-success-subtle {{ $kategori == 'Original' ? 'active' : '' }}">
             Original
             </a>
 
-            <a href="{{ route('keranjang.index', ['kategori' => 'BBQ']) }}"
+            <a href="{{ route('keranjang', ['kategori' => 'BBQ']) }}"
             class="btn-sm btn-success-subtle {{ $kategori == 'BBQ' ? 'active' : '' }}">
             BBQ
             </a>
 
-            <a href="{{ route('keranjang.index', ['kategori' => 'Ayam Panggang']) }}"
+            <a href="{{ route('keranjang', ['kategori' => 'Ayam Panggang']) }}"
             class="btn-sm btn-success-subtle {{ $kategori == 'Ayam Panggang' ? 'active' : '' }}">
             Ayam Panggang
             </a>
 
-            <a href="{{ route('keranjang.index', ['kategori' => 'Pedas']) }}"
+            <a href="{{ route('keranjang', ['kategori' => 'Pedas']) }}"
             class="btn-sm btn-success-subtle {{ $kategori == 'Pedas' ? 'active' : '' }}">
             Pedas
             </a>
 
-            <a href="{{ route('keranjang.index', ['kategori' => 'Balado']) }}"
+            <a href="{{ route('keranjang', ['kategori' => 'Balado']) }}"
             class="btn-sm btn-success-subtle {{ $kategori == 'Balado' ? 'active' : '' }}">
             Balado
             </a>

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->dateTime('tanggal');
             $table->string('alamat');
             $table->string('status_pembayaran');
-            $table->string('status_pengiriman');
+            $table->enum('status_pengiriman', ['Belum Dikirim', 'Dalam Perjalanan', 'Telah Diterima']);
             $table->decimal('total', 10, 2);
             $table->text('note')->nullable();
             $table->timestamps();

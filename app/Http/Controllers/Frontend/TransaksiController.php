@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Frontend;
 
 use App\Models\DetailTransaksi;
 use App\Models\Keranjang;
 use App\Models\Transaksi;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class TransaksiController extends Controller
+class TransaksiController
 {
 
     public function checkout(Request $request)
@@ -47,6 +46,6 @@ class TransaksiController extends Controller
 
         Keranjang::where('id_user', $userId)->delete();
 
-        return redirect()->route('keranjang.index')->with('success', 'Pembayaran berhasil!');
+        return redirect()->route('keranjang')->with('success', 'Pembayaran berhasil!');
     }
 }

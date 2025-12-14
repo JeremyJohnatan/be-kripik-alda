@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Backend;
 
 use App\Models\DetailTransaksi;
 use App\Models\Transaksi;
@@ -8,7 +8,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class DashboardController extends Controller
+class DashboardController
 {
     public function index(Request $request)
     {
@@ -103,7 +103,7 @@ class DashboardController extends Controller
             }),
         ];
 
-        return view('dashboard.dashboard', compact(
+        return view('backend.dashboard.dashboard', compact(
             'filter',
             'product_sold',
             'product_fav',
@@ -224,7 +224,7 @@ class DashboardController extends Controller
             }),
         ];
 
-        $pdf = Pdf::loadView('dashboard.cetak-pdf', compact(
+        $pdf = Pdf::loadView('backend.dashboard.cetak-pdf', compact(
             'filter',
             'product_sold',
             'product_fav',

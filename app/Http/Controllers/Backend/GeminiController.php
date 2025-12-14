@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Backend;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
-class GeminiController extends Controller
+class GeminiController
 {
     public function getInsight(Request $request)
     {
@@ -45,16 +45,14 @@ class GeminiController extends Controller
         ";
 
         $apiKey = env('GEMINI_API_KEY');
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}";
+        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={$apiKey}";
 
-        // Body JSON
         $postData = [
             "contents" => [[
                 "parts" => [[ "text" => $prompt ]]
             ]]
         ];
 
-        // --- cURL Request ---
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -68,7 +66,6 @@ class GeminiController extends Controller
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        // Jika error koneksi
         if ($error) {
             return response()->json([
                 "error" => "Request gagal",
@@ -76,7 +73,6 @@ class GeminiController extends Controller
             ], 500);
         }
 
-        // Jika status bukan 200
         if ($status !== 200) {
             return response()->json([
                 "error" => "API Gemini mengembalikan status tidak OK",
@@ -85,7 +81,6 @@ class GeminiController extends Controller
             ], 500);
         }
 
-        // Return JSON ke frontend
         return response()->json(json_decode($result, true));
     }
 

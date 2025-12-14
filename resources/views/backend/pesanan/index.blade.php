@@ -36,7 +36,33 @@
                     <td class="fw-semibold py-1 text-start">{{ $t->tanggal }}</td>
                     <td class="fw-semibold py-1 text-center">{{ $t->alamat }}</td>
                     <td class="fw-semibold py-1 text-center">{{ $t->status_pembayaran }}</td>
-                    <td class="fw-semibold py-1 text-center">{{ $t->status_pengiriman}}</td>
+                    <td class="fw-semibold py-1">
+                        <form method="POST"
+                            action="{{ route('pesanan.update-status-pengiriman', $t->id_transaksi) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <select name="status_pengiriman"
+                                    class="form-select form-select-sm"
+                                    onchange="this.form.submit()">
+
+                                <option value="Belum Dikirim"
+                                    {{ $t->status_pengiriman === 'Belum Dikirim' ? 'selected' : '' }}>
+                                    Belum Dikirim
+                                </option>
+
+                                <option value="Dalam Perjalanan"
+                                    {{ $t->status_pengiriman === 'Dalam Perjalanan' ? 'selected' : '' }}>
+                                    Dalam Perjalanan
+                                </option>
+
+                                <option value="Telah Diterima"
+                                    {{ $t->status_pengiriman === 'Telah Diterima' ? 'selected' : '' }}>
+                                    Telah Diterima
+                                </option>
+                            </select>
+                        </form>
+                    </td>
                     <td class="fw-semibold py-1 text-center">Rp {{ number_format($t->total, 0, ',', '.') }}</td>
                     <td class="fw-semibold py-1 text-end">
                         <a href="#" class="btn-success-subtle"

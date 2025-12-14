@@ -3,6 +3,7 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 @endpush
+
 @section('content')
 <div class="ml-1 mb-4">
     <h1 class="fw-bold">Rincian Penjualan</h1>
@@ -183,13 +184,13 @@
             let raw = data.candidates[0].content.parts[0].text;
 
             let formatted = raw
-                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")       // **bold**
-                .replace(/(### )(.+)/g, "<h4>$2</h4>")                  // ### heading
-                .replace(/(## )(.+)/g, "<h3>$2</h3>")                  // ## heading
-                .replace(/(# )(.+)/g, "<h2>$2</h2>")                   // # heading
-                .replace(/\n[-•]\s*(.+)/g, "<li>$1</li>")              // bullet list
-                .replace(/\n\n/g, "</p><p>")                           // paragraph
-                .replace(/\n/g, "<br>");                               // line break fallback
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                .replace(/(### )(.+)/g, "<h4>$2</h4>")
+                .replace(/(## )(.+)/g, "<h3>$2</h3>")
+                .replace(/(# )(.+)/g, "<h2>$2</h2>")
+                .replace(/\n[-•]\s*(.+)/g, "<li>$1</li>")
+                .replace(/\n\n/g, "</p><p>")
+                .replace(/\n/g, "<br>");
 
             formatted = formatted.replace(/(<li>[\s\S]*?<\/li>)/g, "<ul>$1</ul>");
 

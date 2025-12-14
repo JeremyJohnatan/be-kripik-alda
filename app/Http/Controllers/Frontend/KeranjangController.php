@@ -1,16 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Frontend;
 
-use App\Models\DetailTransaksi;
 use App\Models\Keranjang;
-use App\Models\User;
 use App\Models\Product;
-use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class KeranjangController extends Controller
+class KeranjangController
 {
     public function index(Request $request)
     {

@@ -1,52 +1,128 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+@extends('layouts.app')
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+@section('title', 'Register Page')
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/frontend.css') }}">
+@endpush
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
+@section('content')
+
+<section class="register-alda-section">
+    <div class="register-alda-container">
+        <div class="register-alda-card">
+
+            <!-- LEFT -->
+            <div class="register-alda-left">
+                <img src="{{ asset('assets/img/alda/logo.png') }}" alt="Logo ALDA" class="register-logo">
+            </div>
+
+            <!-- RIGHT -->
+            <div class="register-alda-right">
+
+                <h2 class="register-title">Registrasi</h2>
+                <p class="register-subtitle">Create your account</p>
+
+                {{-- Breeze Register Form --}}
+                <form method="POST" action="{{ route('register') }}" class="register__form">
+                    @csrf
+
+                    <!-- Name -->
+                    <div class="register-form-grp">
+                        <label for="name">Nama</label>
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            value="{{ old('name') }}"
+                            placeholder="Masukkan Nama..."
+                            required
+                        >
+                        @error('name')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="register-form-grp">
+                        <label for="phone">No. Handphone</label>
+                        <input
+                            id="phone"
+                            type="text"
+                            name="phone"
+                            value="{{ old('phone') }}"
+                            placeholder="Masukkan No. Handphone..."
+                        >
+                        @error('phone')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <!-- Address -->
+                    <div class="register-form-grp">
+                        <label for="address">Alamat</label>
+                        <input
+                            id="address"
+                            type="text"
+                            name="address"
+                            value="{{ old('address') }}"
+                            placeholder="Masukkan Alamat..."
+                        >
+                        @error('address')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <!-- Email -->
+                    <div class="register-form-grp">
+                        <label for="email">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="Masukkan Email..."
+                            required
+                        >
+                        @error('email')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <!-- Password -->
+                    <div class="register-form-grp">
+                        <label for="password">Password</label>
+                        <input
+                            id="password"
                             type="password"
                             name="password"
-                            required autocomplete="new-password" />
+                            placeholder="Masukkan Password..."
+                            required
+                        >
+                        @error('password')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
+                    <!-- Confirm Password -->
+                    <div class="register-form-grp">
+                        <label for="password_confirmation">Konfirmasi Password</label>
+                        <input
+                            id="password_confirmation"
                             type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+                            name="password_confirmation"
+                            placeholder="Ulangi Password..."
+                            required
+                        >
+                    </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                    <button type="submit" class="register-btn">Daftar</button>
+                </form>
+
+            </div>
         </div>
+    </div>
+</section>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+@endsection

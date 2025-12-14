@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Backend;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
-class ProductController extends Controller
+class ProductController
 {
     public function index(Request $request)
     {
@@ -18,13 +18,13 @@ class ProductController extends Controller
             return $query->where('item_produk', $kategori);
         })->get();
 
-        return view('product.index', compact('products', 'kategori'));
+        return view('backend.product.index', compact('products', 'kategori'));
     }
 
 
     public function create()
     {
-        return view('product.create');
+        return view('backend.product.create');
     }
 
     public function store(Request $request)
@@ -84,7 +84,7 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::where('id_produk', $id)->firstOrFail();
-        return view('product.edit', compact('product'));
+        return view('backend.product.edit', compact('product'));
     }
 
     public function update(Request $request, $id)

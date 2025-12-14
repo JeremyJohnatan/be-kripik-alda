@@ -25,7 +25,6 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
-
     @stack('styles')
 </head>
 
@@ -34,20 +33,45 @@
 @include('partials.preloader')
 @include('partials.scrolltop')
 
+@if(auth()->check() && auth()->user()->role === 'Admin')
+    <div class="d-flex">
+        @include('partials.sidebar')
 
-<div class="d-flex">
-    @include('partials.sidebar')
+        <main class="main-area">
+            <button class="btn btn-light d-lg-none m-3" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
 
-    <main class="main-area">
-        <button class="btn btn-light d-lg-none m-3" id="toggleSidebar">
-            <i class="fas fa-bars"></i>
-        </button>
+            <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+            @yield('content')
+        </main>
+    </div>
+@elseif(auth()->check() && auth()->user()->role === 'Customer')
 
-        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    @if(!request()->routeIs('keranjang'))
+            @include('partials.header')
+            @yield('content')
+            @include('partials.footer')
+    @else
+        <div class="d-flex">
+            @include('partials.sidebar')
+
+            <main class="main-area">
+                <button class="btn btn-light d-lg-none m-3" id="toggleSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+                @yield('content')
+            </main>
+        </div>
+    @endif
+
+@else
+    <main class="main-area fix">
         @yield('content')
     </main>
-</div>
-
+@endif
 
 
 

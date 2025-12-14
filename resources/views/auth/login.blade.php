@@ -1,47 +1,86 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@extends('layouts.app')
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@section('title', 'Login Page')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/frontend.css') }}">
+@endpush
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+@section('content')
 
-            <x-text-input id="password" class="block mt-1 w-full"
+<section class="login-alda-section">
+    <div class="login-alda-container">
+        <div class="login-alda-card">
+
+            <!-- LEFT -->
+            <div class="login-alda-left">
+                <img src="{{ asset('assets/img/alda/logo.png') }}" alt="Logo ALDA" class="login-logo">
+            </div>
+
+            <!-- RIGHT -->
+            <div class="login-alda-right">
+
+                <h2 class="login-title">Login</h2>
+                <p class="login-subtitle">Login to your account continue</p>
+
+                {{-- Breeze Login Form --}}
+                <form method="POST" action="{{ route('login') }}" class="account__form">
+                    @csrf
+
+                    <!-- Email -->
+                    <div class="form-grp">
+                        <label for="email">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="Masukkan Email..."
+                            required
+                            autofocus
+                        >
+                        @error('email')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-grp">
+                        <label for="password">Password</label>
+                        <input
+                            id="password"
                             type="password"
                             name="password"
-                            required autocomplete="current-password" />
+                            placeholder="Masukkan Password..."
+                            required
+                        >
+                        @error('password')
+                            <small class="text-red-500">{{ $message }}</small>
+                        @enderror
+                    </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                    <!-- Remember + Forgot -->
+                    <div class="account__check">
+                        <div class="account__check-remember">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">Ingat saya</label>
+                        </div>
+
+                        @if (Route::has('password.request'))
+                            <div class="account__check-forgot">
+                                <a href="{{ route('password.request') }}">
+                                    Lupa Password?
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                    <button type="submit" class="login-btn">Masuk</button>
+                </form>
+
+            </div>
         </div>
+    </div>
+</section>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+@endsection
