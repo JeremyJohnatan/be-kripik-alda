@@ -66,6 +66,7 @@ class GeminiController
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
+        // check error
         if ($error) {
             return response()->json([
                 "error" => "Request gagal",
